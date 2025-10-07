@@ -5,13 +5,21 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+// Define the error type
+type SignInError = 
+  | '2FA_REQUIRED' 
+  | 'INVALID_2FA_CODE' 
+  | 'Invalid credentials' 
+  | 'Something went wrong' 
+  | '';
+
 export default function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [twoFactorCode, setTwoFactorCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [show2FA, setShow2FA] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<SignInError>('');
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,14 +39,14 @@ export default function SignIn() {
         setShow2FA(true);
         setError('');
       } else if (result?.error === 'INVALID_2FA_CODE') {
-        setError('Invalid 2FA code. Please try again.');
+        setError('INVALID_2FA_CODE');
       } else if (result?.error) {
         setError('Invalid credentials');
       } else {
         router.push('/dashboard');
       }
-    } catch (error: any) {
-      if (error.message === '2FA_REQUIRED') {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message === '2FA_REQUIRED') {
         setShow2FA(true);
         setError('');
       } else {
@@ -49,6 +57,21 @@ export default function SignIn() {
     }
   };
 
+  const getErrorMessage = (errorType: SignInError): string => {
+    switch (errorType) {
+      case '2FA_REQUIRED':
+        return 'Two-factor authentication is required';
+      case 'INVALID_2FA_CODE':
+        return 'Invalid 2FA code. Please try again.';
+      case 'Invalid credentials':
+        return 'Invalid email or password';
+      case 'Something went wrong':
+        return 'Something went wrong. Please try again.';
+      default:
+        return '';
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-md w-96">
@@ -56,7 +79,7 @@ export default function SignIn() {
         
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-sm text-red-800">{error}</p>
+            <p className="text-sm text-red-800">{getErrorMessage(error)}</p>
           </div>
         )}
 
@@ -78,7 +101,7 @@ export default function SignIn() {
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
@@ -91,7 +114,7 @@ export default function SignIn() {
                 <input
                   type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
@@ -106,7 +129,7 @@ export default function SignIn() {
                 type="text"
                 placeholder="Enter 6-digit code"
                 value={twoFactorCode}
-                onChange={(e) => setTwoFactorCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTwoFactorCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md text-center text-lg font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
                 maxLength={6}
                 required
