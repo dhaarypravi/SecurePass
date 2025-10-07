@@ -4,24 +4,31 @@ import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import VaultItem from '@/models/VaultItem';
 
-// GET - Get all vault items for the user
-export async function GET() {
+// GET - Get single item
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const itemId = params.id;
+
     await connectDB();
 
-    const items = await VaultItem.find({ userId: (session.user as any).id })
-      .sort({ createdAt: -1 })
-      .select('-__v');
+    const item = await VaultItem.findOne({ _id: itemId, userId: session.user.id });
 
-    return NextResponse.json({ items });
+    if (!item) {
+      return NextResponse.json({ error: 'Item not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ item });
   } catch (error) {
-    console.error('Get vault items error:', error);
+    console.error('Get vault item error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -29,60 +36,84 @@ export async function GET() {
   }
 }
 
-// POST - Create a new vault item
-// POST - Create a new vault item
-export async function POST(request: Request) {
+// PUT - Update item
+export async function PUT(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
-    console.log('API: Starting POST request');
-    
     const session = await getServerSession(authOptions);
-    console.log('API: Session data:', session);
-    console.log('API: User ID:', (session?.user as any).id);
 
-    if (!(session?.user as any).id) {
-      console.log('API: Unauthorized - no user ID');
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await request.json();
-    console.log('API: Request body received:', body);
+    const itemId = params.id;
+    const { title, username, encryptedPassword, url, notes } = await request.json();
 
-    const { title, username, encryptedPassword, url, notes } = body;
-
-    if (!title || !username || !encryptedPassword) {
-      console.log('API: Missing required fields');
-      return NextResponse.json(
-        { error: 'Title, username, and password are required' },
-        { status: 400 }
-      );
-    }
-
-    console.log('API: Connecting to database');
     await connectDB();
 
-    // FIX: Properly convert string ID to MongoDB ObjectId
-    const mongoose = await import('mongoose');
-    const userId = new mongoose.Types.ObjectId(session.user.id);
+    // Find the item and verify it belongs to the current user
+    const item = await VaultItem.findOne({ _id: itemId, userId: session.user.id });
 
-    console.log('API: Creating vault item for user:', userId);
-    
-    const vaultItem = await VaultItem.create({
-      userId: userId,  // Use the properly formatted ObjectId
-      title,
-      username,
-      encryptedPassword,
-      url,
-      notes,
-    });
+    if (!item) {
+      return NextResponse.json({ error: 'Item not found' }, { status: 404 });
+    }
 
-    console.log('API: Item created successfully:', vaultItem._id);
-    
-    return NextResponse.json(
-      { message: 'Item created successfully', item: vaultItem },
-      { status: 201 }
+    // Update the item
+    const updatedItem = await VaultItem.findByIdAndUpdate(
+      itemId,
+      {
+        title,
+        username,
+        encryptedPassword,
+        url,
+        notes,
+        updatedAt: new Date(),
+      },
+      { new: true }
     );
+
+    return NextResponse.json({ 
+      message: 'Item updated successfully', 
+      item: updatedItem 
+    });
   } catch (error) {
-    console.error('API: Error creating vault item:', error);
+    console.error('Update vault item error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE - Delete item
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const itemId = params.id;
+
+    await connectDB();
+
+    const item = await VaultItem.findOne({ _id: itemId, userId: session.user.id });
+
+    if (!item) {
+      return NextResponse.json({ error: 'Item not found' }, { status: 404 });
+    }
+
+    await VaultItem.findByIdAndDelete(itemId);
+
+    return NextResponse.json({ message: 'Item deleted successfully' });
+  } catch (error) {
+    console.error('Delete vault item error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
