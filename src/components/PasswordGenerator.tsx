@@ -54,7 +54,7 @@ export default function PasswordGenerator() {
             type="text"
             value={password}
             readOnly
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 px-3 py-2 border text-white border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Your generated password will appear here"
           />
           
