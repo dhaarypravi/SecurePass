@@ -9,8 +9,9 @@ A modern, privacy-first password manager built with Next.js 15, featuring client
 
 ## 🌟 Live Demo
 
-🚀 **Live Application:** [Your Live Link Here](#)  
-*(Replace with your actual deployment link)*
+🚀 **Live Application:** https://secure-pass-pi.vercel.app
+
+**Video Link** https://drive.google.com/file/d/1zo3seLcLc8pxvDikU3NhWJjy7PAQLDlD/view?usp=sharing
 
 ## ✨ Features
 
