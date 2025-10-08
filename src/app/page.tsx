@@ -19,7 +19,7 @@ export default function Home() {
           </Link>
           <Link 
             href="/auth/signin" 
-            className="border border-gray-300 px-6 py-2 rounded-lg hover:bg-gray-50"
+            className="text-black border border-gray-300 px-6 py-2 rounded-lg hover:bg-gray-50"
           >
             Sign In
           </Link>

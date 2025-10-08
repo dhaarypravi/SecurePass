@@ -1,11 +1,17 @@
-import NextAuth from 'next-auth';
+import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import speakeasy from 'speakeasy';
 import connectDB from './mongodb';
 import User from '@/models/User';
 
-export const authOptions = {
+// Extended User interface
+interface ExtendedUser {
+  id: string;
+  email: string;
+}
+
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -14,7 +20,7 @@ export const authOptions = {
         password: { label: 'Password', type: 'password' },
         twoFactorCode: { label: '2FA Code', type: 'text', required: false },
       },
-      async authorize(credentials) {
+      async authorize(credentials): Promise<ExtendedUser | null> {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
@@ -39,7 +45,6 @@ export const authOptions = {
         // If 2FA is enabled, verify the code
         if (user.isTwoFactorEnabled && user.twoFactorSecret) {
           if (!credentials.twoFactorCode) {
-            // Return special object to indicate 2FA is required
             throw new Error('2FA_REQUIRED');
           }
 
@@ -64,17 +69,13 @@ export const authOptions = {
     }),
   ],
   callbacks: {
-   
-    async jwt({ token , user  } : { token: any; user: any }) {
-      // Add user id to the token when user signs in
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
       }
       return token;
     },
-    
-    async session({ session, token }: { session: any; token: any }) {
-      // Add user id to the session
+    async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id as string;
       }
@@ -82,12 +83,11 @@ export const authOptions = {
     },
   },
   session: {
-    strategy: 'jwt' as const,
+    strategy: 'jwt',
   },
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: '/auth/signin',
-    signUp: '/auth/signup',
   },
 };
 

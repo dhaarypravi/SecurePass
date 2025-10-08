@@ -7,16 +7,17 @@ import VaultItem from '@/models/VaultItem';
 // GET - Get single item
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params; // ✅ AWAIT the params
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const itemId = params.id;
+    const itemId = params.id; // ✅ Now use the awaited params
 
     await connectDB();
 
@@ -39,16 +40,17 @@ export async function GET(
 // PUT - Update item
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params; // ✅ AWAIT the params
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const itemId = params.id;
+    const itemId = params.id; // ✅ Now use the awaited params
     const { title, username, encryptedPassword, url, notes } = await request.json();
 
     await connectDB();
@@ -87,19 +89,20 @@ export async function PUT(
   }
 }
 
-// DELETE - Delete item (keep your existing delete function)
+// DELETE - Delete item
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params; // ✅ AWAIT the params
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const itemId = params.id;
+    const itemId = params.id; // ✅ Now use the awaited params
 
     await connectDB();
 

@@ -14,6 +14,20 @@ interface VaultItem {
   createdAt: string;
 }
 
+interface ImportedItem {
+  title: string;
+  username: string;
+  url?: string;
+  notes?: string;
+  createdAt?: string;
+}
+
+interface ImportData {
+  items: ImportedItem[];
+  exportedAt?: string;
+  version?: string;
+}
+
 export default function VaultList() {
   const { data: session } = useSession();
   const [items, setItems] = useState<VaultItem[]>([]);
@@ -43,14 +57,14 @@ const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
       const content = e.target?.result as string;
       const data = JSON.parse(content);
       processImportedData(data);
-    } catch (error) {
+    } catch  {
       alert('Invalid file format. Please upload a valid JSON export file.');
     }
   };
   reader.readAsText(file);
 };
 
-const processImportedData = async (data: any) => {
+const processImportedData = async (data: ImportData) => {
   setImportLoading(true);
   try {
     // Validate the import data structure
@@ -448,7 +462,7 @@ const handleCancelEdit = () => {
   return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md transition-colors duration-200">
       <div className="flex justify-between items-center mb-6">
-  <h2 className="text-2xl font-bold text-gray-800">My Vault</h2>
+  <h2 className="text-2xl font-bold text-white">My Vault</h2>
 
 <div className="flex space-x-2">
   {/* Import Button */}
@@ -689,23 +703,23 @@ const handleCancelEdit = () => {
       {/* Vault Items List */}
       {filteredItems.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-500 mb-4">
+          <p className="text-white mb-4">
             {items.length === 0 ? 'Your vault is empty' : 'No items match your search'}
           </p>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-white">
             {items.length === 0 ? 'Add your first item to get started!' : 'Try a different search term'}
           </p>
         </div>
       ) : (
         <div className="space-y-4">
           {filteredItems.map((item) => (
-            <div key={item._id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+            <div key={item._id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-10 bg-gray-500">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-lg text-gray-800">{item.title}</h3>
-                  <p className="text-gray-600">Username: {item.username}</p>
+                  <h3 className="font-semibold text-lg text-white">{item.title}</h3>
+                  <p className="text-white">Username: {item.username}</p>
                   {item.url && (
-                    <p className="text-gray-600">
+                    <p className="text-white">
                       URL:{' '}
                       <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                         {item.url}
@@ -713,9 +727,9 @@ const handleCancelEdit = () => {
                     </p>
                   )}
                   <div className="mt-2 flex items-center space-x-2">
-                    <span className="text-gray-600">Password: </span>
+                    <span className="text-gray-800">Password: </span>
                     {decryptedPasswords[item._id] ? (
-                      <span className="font-mono bg-yellow-100 px-2 py-1 rounded">
+                      <span className="text-gray-100 font-mono bg-yellow-700 px-2 py-1 rounded">
                         {decryptedPasswords[item._id]}
                       </span>
                     ) : (

@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+// Remove unused session import
+// import { useSession } from 'next-auth/react';
+import Image from 'next/image'; // Add Next.js Image component
 
 interface TwoFactorSetupProps {
   onComplete: () => void;
@@ -9,13 +11,14 @@ interface TwoFactorSetupProps {
 }
 
 export default function TwoFactorSetup({ onComplete, onCancel }: TwoFactorSetupProps) {
-  const { data: session } = useSession();
+  // Remove unused session
+  // const { data: session } = useSession();
   const [step, setStep] = useState<'setup' | 'verify'>('setup');
   const [secret, setSecret] = useState('');
   const [qrCode, setQrCode] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [setupError, setSetupError] = useState(''); // Renamed from error
 
   useEffect(() => {
     if (step === 'setup') {
@@ -32,16 +35,16 @@ export default function TwoFactorSetup({ onComplete, onCancel }: TwoFactorSetupP
         setSecret(data.secret);
         setQrCode(data.qrCode);
       } else {
-        setError('Failed to generate 2FA secret');
+        setSetupError('Failed to generate 2FA secret');
       }
-    } catch (error) {
-      setError('Failed to generate 2FA secret');
+    } catch {
+      setSetupError('Failed to generate 2FA secret');
     }
   };
 
   const verify2FACode = async () => {
     setLoading(true);
-    setError('');
+    setSetupError('');
 
     try {
       const response = await fetch('/api/auth/2fa/verify', {
@@ -69,10 +72,10 @@ export default function TwoFactorSetup({ onComplete, onCancel }: TwoFactorSetupP
 
         onComplete();
       } else {
-        setError('Invalid verification code. Please try again.');
+        setSetupError('Invalid verification code. Please try again.');
       }
-    } catch (error) {
-      setError('Verification failed. Please try again.');
+    } catch  {
+      setSetupError('Verification failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -85,9 +88,9 @@ export default function TwoFactorSetup({ onComplete, onCancel }: TwoFactorSetupP
           {step === 'setup' ? 'Setup Two-Factor Authentication' : 'Verify 2FA Code'}
         </h3>
 
-        {error && (
+        {setupError && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-sm text-red-800">{error}</p>
+            <p className="text-sm text-red-800">{setupError}</p>
           </div>
         )}
 
@@ -99,7 +102,13 @@ export default function TwoFactorSetup({ onComplete, onCancel }: TwoFactorSetupP
             
             {qrCode && (
               <div className="flex justify-center">
-                <img src={qrCode} alt="QR Code" className="w-48 h-48" />
+                <Image 
+                  src={qrCode} 
+                  alt="QR Code" 
+                  width={192} 
+                  height={192}
+                  className="w-48 h-48"
+                />
               </div>
             )}
 

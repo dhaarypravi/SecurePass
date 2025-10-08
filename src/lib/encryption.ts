@@ -32,7 +32,7 @@ export function decryptData(encryptedData: string, encryptionKey: string): strin
     }
     
     return decrypted;
-  } catch (error) {
+  } catch  {
     throw new Error('Failed to decrypt data. Please check your master password.');
   }
 }

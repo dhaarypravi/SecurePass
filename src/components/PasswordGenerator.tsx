@@ -61,7 +61,7 @@ export default function PasswordGenerator() {
           <button
             onClick={copyToClipboard}
             disabled={!password}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-blue-500  rounded-md hover:bg-blue-700 disabled:opacity-100 disabled:cursor-not-allowed"
           >
             Copy
           </button>
@@ -81,12 +81,12 @@ export default function PasswordGenerator() {
       <div className="space-y-4">
         {/* Length Slider */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-white mb-2">
             Length: {length}
           </label>
           <input
             type="range"
-            min="8"
+            min="4"
             max="32"
             value={length}
             onChange={(e) => setLength(parseInt(e.target.value))}
@@ -103,7 +103,7 @@ export default function PasswordGenerator() {
               onChange={(e) => setIncludeNumbers(e.target.checked)}
               className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
-            <span className="ml-2 text-sm text-gray-700">Include Numbers</span>
+            <span className="ml-2 text-sm text-white">Include Numbers</span>
           </label>
           
           <label className="flex items-center">
@@ -113,7 +113,7 @@ export default function PasswordGenerator() {
               onChange={(e) => setIncludeSymbols(e.target.checked)}
               className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
-            <span className="ml-2 text-sm text-gray-700">Include Symbols</span>
+            <span className="ml-2 text-sm text-white">Include Symbols</span>
           </label>
           
           <label className="flex items-center">
@@ -123,7 +123,7 @@ export default function PasswordGenerator() {
               onChange={(e) => setExcludeSimilar(e.target.checked)}
               className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
-            <span className="ml-2 text-sm text-gray-700">Exclude Similar Characters (i, l, 1, L, o, 0, O)</span>
+            <span className="ml-2 text-sm text-white">Exclude Similar Characters (i, l, 1, L, o, 0, O)</span>
           </label>
         </div>
       </div>

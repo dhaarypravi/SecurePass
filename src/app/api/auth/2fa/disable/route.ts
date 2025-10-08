@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 
-export async function POST(request: Request) {
+export async function POST() { // Remove unused request parameter
   try {
     const session = await getServerSession(authOptions);
 

@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
+
 import TwoFactorSetup from './TwoFactorSetup';
 
 export default function UserSettings() {
-  const { data: session } = useSession();
+ 
   const [showSettings, setShowSettings] = useState(false);
   const [show2FASetup, setShow2FASetup] = useState(false);
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
@@ -36,7 +36,7 @@ export default function UserSettings() {
           setShowSettings(true);
           check2FAStatus();
         }}
-        className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
+        className="p-2 text-gray-300 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
         title="Settings"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
